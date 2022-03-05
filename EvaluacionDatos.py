@@ -1,56 +1,51 @@
 from surprise.model_selection import train_test_split
-from surprise.model_selection import LeaveOneOut
 from surprise import KNNBaseline
 
-class EvaluacionDatos:
-    def __init__(self, data, popularityRankings):
-        self.rankings = popularityRankings
-        #Creacion de un set de entrenamiento para evaluacion
-        self.fullTrainSet = data.build_full_trainset()
-        self.fullAntiTestSet = self.fullTrainSet.build_anti_testset()
-        
-        #Creacion de un split entre set de entrenamiento y de prueba de 75/25
-        self.trainSet, self.testSet = train_test_split(data, test_size=.25, random_state=1)
-        
-        #Build a "leave one out" train/test split for evaluating top-N recommenders
-        #And build an anti-test-set for building predictions
-        LOOCV = LeaveOneOut(n_splits=1, random_state=1)
-        for train, test in LOOCV.split(data):
-            self.LOOCVTrain = train
-            self.LOOCVTest = test
-            
-        self.LOOCVAntiTestSet = self.LOOCVTrain.build_anti_testset()
-        
-        #Matriz de similitud entre items para medir la diversidad
-        sim_options = {'nombre': 'cosine', 'user_based': False}
-        self.simsAlgo = KNNBaseline(sim_options=sim_options)
-        self.simsAlgo.fit(self.fullTrainSet)
-            
-    def GetFullTrainSet(self):
-        return self.fullTrainSet
-    
-    def GetFullAntiTestSet(self):
-        return self.fullAntiTestSet
-    
-    def GetAntiTestSetForUser(self, testSubject):
-        trainset = self.fullTrainSet
-        fill = trainset.global_mean
-        anti_testset = []
-        u = trainset.to_inner_uid(str(testSubject))
-        user_items = set([j for (j, _) in trainset.ur[u]])
-        anti_testset += [(trainset.to_raw_uid(u), trainset.to_raw_iid(i), fill) for
-                                 i in trainset.all_items() if
-                                 i not in user_items]
-        return anti_testset
 
-    def GetTrainSet(self):
+class EvaluacionDatos:
+    def __init__(self, datos, rankingsPopularidad):
+        # Creacion de un split entre set de entrenamiento y de prueba de 75/25
+        self.trainSet, self.testSet = train_test_split(datos, test_size=.25, random_state=1)
+
+        # Creacion de un set de entrenamiento para evaluacion
+        self.trainSetCompleto = datos.build_full_trainset()
+
+        # Creacion de un anti test set que recolecte todos los datos que no estan en el set de entrenamiento
+        self.antiTestSetCompleto = self.trainSetCompleto.build_anti_testset()
+
+        # Matriz de similitud entre items para medir la diversidad
+        opciones = {'name': 'cosine', 'user_based': False}
+        self.algoritmoSimilitud = KNNBaseline(sim_options=opciones)
+        self.algoritmoSimilitud.fit(self.trainSetCompleto)
+
+        # Creacion de rankings para medir la innovacion
+        self.rankings = rankingsPopularidad
+
+    def ObtenerTrainSetCompleto(self):
+        return self.trainSetCompleto
+
+    def ObtenerAntiTestsetCompleto(self):
+        return self.antiTestSetCompleto
+
+    def ObtenerSetAntiTestParaUsuario(self, usuario):
+        trainSet = self.trainSetCompleto
+        fill = trainSet.global_mean
+        antiTestSet = []
+        idUsuario = trainSet.to_inner_uid(str(usuario))
+        itemsDeUsuarios = set([j for (j, _) in trainSet.ur[idUsuario]])
+        antiTestSet += [(trainSet.to_raw_uid(idUsuario), trainSet.to_raw_iid(i), fill) for
+                        i in trainSet.all_items() if
+                        i not in itemsDeUsuarios]
+        return antiTestSet
+
+    def ObtenerTrainSet(self):
         return self.trainSet
-    
-    def GetTestSet(self):
+
+    def ObtenerTestSet(self):
         return self.testSet
-    
-    def GetSimilarities(self):
-        return self.simsAlgo
-    
-    def GetPopularityRankings(self):
+
+    def ObtenerSimilitudes(self):
+        return self.algoritmoSimilitud
+
+    def ObtenerRankingsPopularidad(self):
         return self.rankings

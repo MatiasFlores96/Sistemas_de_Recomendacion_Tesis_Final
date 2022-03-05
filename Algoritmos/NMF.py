@@ -58,8 +58,6 @@ NMFtuned = NMF(n_epochs=NMF_params['n_epochs'],
 evaluador.AgregarAlgoritmo(NMFtuned, "NMF")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=False, caracteristicas=True)
-
-#evaluador.SampleTopNRecs(ml)
+evaluador.Evaluar(rank=True, caracteristicas=True)
 
 

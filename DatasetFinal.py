@@ -13,6 +13,9 @@ class DatasetFinal:
     ratingsPath = '../ml-latest-small/ratings.csv'
     moviesPath = '../ml-latest-small/movies.csv'
     
+    #Esta funcion Carga los datasets desde la ruta donde se encuentran
+    #Los datasets estan en csv y utiliza la duncion Reader de surprise
+    #Para que queden de forma que la libreria pueda interpretarlos
     def CargarDataset(self):
         os.chdir(os.path.dirname(sys.argv[0]))
         ratingsDataset = 0
@@ -32,6 +35,8 @@ class DatasetFinal:
 
         return ratingsDataset
 
+    #Esta funcion devuelve los rankings de las peliculas
+    #Se basa en que tan popular es una pelicula segun su cantidad de ratings recibidos
     def ObtenerRankingPopularidad(self):
         ratings = defaultdict(int)
         rankings = defaultdict(int)
@@ -49,7 +54,8 @@ class DatasetFinal:
             rank += 1
 
         return rankings
-    
+
+   #Esta funcion retorna un diccionario con los generos de las peliculas
     def ObtenerGeneros(self):
         genres = defaultdict(list)
         genreIDs = {}
@@ -83,8 +89,9 @@ class DatasetFinal:
             genres[movieID] = bitfield            
         
         return genres
-    
-    def ObtenerAnos(self):
+
+    #Esta funcion devuelve un diccionario con los años de las peliculas
+    def ObtenerYears(self):
         p = re.compile(r"(?:\((\d{4})\))?\s*$")
         years = defaultdict(int)
 
@@ -102,7 +109,8 @@ class DatasetFinal:
                     years[movieID] = int(year)
 
         return years
-    
+
+    #Esta funcion devuelve el titulo del Item de acuerdo al Id pasado
     def ObtenerNombreItem(self, movieID):
 
         if movieID in self.movieID_to_name:
@@ -110,7 +118,8 @@ class DatasetFinal:
 
         else:
             return ""
-        
+
+    #Esta funcion devuelve el id del Item de acuerdo al nombre pasado
     def ObtenerIDItem(self, movieName):
 
         if movieName in self.name_to_movieID:

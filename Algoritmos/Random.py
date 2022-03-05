@@ -28,8 +28,6 @@ Random = NormalPredictor()
 evaluador.AgregarAlgoritmo(Random, "Random")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=True, caracteristicas=False)
-
-#evaluador.SampleTopNRecs(ml)
+evaluador.Evaluar(rank=False, caracteristicas=True)
 
 

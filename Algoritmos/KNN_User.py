@@ -22,7 +22,7 @@ random.seed(0)
 (dataset, datosEvaluacion, rankings) = CargarDatos()
 
 #KNN Neighborhood based
-#KNN_param_grid = {'k': [10, 20, 50],
+#KNN_param_grid = {'k': [10, 20, 40, 50],
 #                  'sim_options': {'name': ['pearson', 'cosine'],
 #                                  'user_based': [True]
 #                                  }
@@ -56,8 +56,6 @@ KNN = KNNBasic(k=KNN_params['k'],
 evaluador.AgregarAlgoritmo(KNN, "KNN User-Based")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=False, caracteristicas=True)
-
-#evaluador.SampleTopNRecs(ml)
+evaluador.Evaluar(rank=True, caracteristicas=True)
 
 

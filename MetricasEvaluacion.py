@@ -18,7 +18,7 @@ class MetricasEvaluacion:
     def FCP(predicciones):
         return accuracy.fcp(predicciones, verbose=False)
     
-    def Ranking(predicciones, k, threshold):
+    def Ranking(predicciones, k, limite):
         # First map the predictions to each user.
         user_est_true = defaultdict(list)
         for uid, _, true_r, est, _ in predicciones:
@@ -32,40 +32,37 @@ class MetricasEvaluacion:
             user_ratings.sort(key=lambda x: x[0], reverse=True)
         
             # Obtiene el numero de items relevantes
-            n_rel = sum((true_r >= threshold) for (_, true_r) in user_ratings)
+            n_rel = sum((true_r >= limite) for (_, true_r) in user_ratings)
         
             # Obtiene el numero de items recomendados en top k
-            n_rec_k = sum((est >= threshold) for (est, _) in user_ratings[:k])
+            n_rec_k = sum((est >= limite) for (est, _) in user_ratings[:k])
         
             # Obtiene el numero de items relevantes y recomendados en top k
-            n_rel_and_rec_k = sum(((true_r >= threshold) and (est >= threshold))
+            n_rel_and_rec_k = sum(((true_r >= limite) and (est >= limite))
                                   for (est, true_r) in user_ratings[:k])
         
             # Precision@K: Proporcion de items recomendados que son relevantes
-
             precisions[uid] = n_rel_and_rec_k / n_rec_k if n_rec_k != 0 else 0
         
             # Recall@K: Proporcion de items relevantes que son recomendados
-            # When n_rel is 0, Recall is undefined. We here set it to 0.
-        
             recalls[uid] = n_rel_and_rec_k / n_rel if n_rel != 0 else 0
         
         return precisions, recalls
     
-    def ResultadosRanking(predicciones, k, threshold):
-        precisions, recalls = MetricasEvaluacion.Ranking(predicciones, k, threshold)
+    def ResultadosRanking(predicciones, k, limite):
+        precisions, recalls = MetricasEvaluacion.Ranking(predicciones, k, limite)
         
-        PromedioPrecision = sum(prec for prec in precisions.values()) / len(precisions)
-        PromedioRecall = sum(rec for rec in recalls.values()) / len(recalls)
-        F1 = (2 * PromedioPrecision * PromedioRecall) / (PromedioPrecision + PromedioRecall)
+        promedioPrecision = sum(prec for prec in precisions.values()) / len(precisions)
+        promedioRecall = sum(rec for rec in recalls.values()) / len(recalls)
+        F1 = (2 * promedioPrecision * promedioRecall) / (promedioPrecision + promedioRecall)
         
-        return PromedioPrecision, PromedioRecall, F1
+        return promedioPrecision, promedioRecall, F1
     
-    def ObtenerTopN(predicciones, n=10, minimumRating=4.0):
+    def ObtenerTopN(predicciones, n, rating_minimo):
         topN = defaultdict(list)
 
         for userID, movieID, actualRating, estimatedRating, _ in predicciones:
-            if (estimatedRating >= minimumRating):
+            if estimatedRating >= rating_minimo:
                 topN[int(userID)].append((int(movieID), estimatedRating))
 
         for userID, ratings in topN.items():
@@ -74,43 +71,42 @@ class MetricasEvaluacion:
 
         return topN
 
-    # What percentage of users have at least one "good" recommendation
-    def Cobertura(topNPredicted, numUsers, ratingThreshold=0):
-        hits = 0
-        for userID in topNPredicted.keys():
-            hit = False
-            for movieID, predictedRating in topNPredicted[userID]:
-                if (predictedRating >= ratingThreshold):
-                    hit = True
+    def Cobertura(topNPredichos, numero_total_usuarios, limite_rating):
+        aciertos = 0
+        for userID in topNPredichos.keys():
+            acierto = False
+            for movieID, predictedRating in topNPredichos[userID]:
+                if predictedRating >= limite_rating:
+                    acierto = True
                     break
-            if (hit):
-                hits += 1
+            if acierto:
+                aciertos += 1
 
-        return hits / numUsers
+        return aciertos / numero_total_usuarios
 
-    def Diversidad(topNPredicted, simsAlgo):
+    def Diversidad(topNPredichos, algoritmoSimilitud):
         n = 0
         total = 0
-        simsMatrix = simsAlgo.compute_similarities()
-        for userID in topNPredicted.keys():
-            pairs = itertools.combinations(topNPredicted[userID], 2)
+        matrizSimilitud = algoritmoSimilitud.compute_similarities()
+        for userID in topNPredichos.keys():
+            pairs = itertools.combinations(topNPredichos[userID], 2)
             for pair in pairs:
                 movie1 = pair[0][0]
                 movie2 = pair[1][0]
-                innerID1 = simsAlgo.trainset.to_inner_iid(str(movie1))
-                innerID2 = simsAlgo.trainset.to_inner_iid(str(movie2))
-                similarity = simsMatrix[innerID1][innerID2]
+                innerID1 = algoritmoSimilitud.trainset.to_inner_iid(str(movie1))
+                innerID2 = algoritmoSimilitud.trainset.to_inner_iid(str(movie2))
+                similarity = matrizSimilitud[innerID1][innerID2]
                 total += similarity
                 n += 1
 
         S = total / n
         return (1-S)
 
-    def Innovacion(topNPredicted, rankings):
+    def Innovacion(topNPredichos, rankings):
         n = 0
         total = 0
-        for userID in topNPredicted.keys():
-            for rating in topNPredicted[userID]:
+        for userID in topNPredichos.keys():
+            for rating in topNPredichos[userID]:
                 movieID = rating[0]
                 rank = rankings[movieID]
                 total += rank

@@ -23,12 +23,10 @@ random.seed(0)
 # Construccion de Evaluador para evaluar cada Algoritmo
 evaluador = Evaluador(datosEvaluacion, rankings)
 
-contentKNN = AlgoritmoContentKNN()
+contentKNN = AlgoritmoContentKNN(30)
 evaluador.AgregarAlgoritmo(contentKNN, "ContentKNN")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=False, caracteristicas=True)
-
-#evaluador.SampleTopNRecs(dataset)
+evaluador.Evaluar(rank=True, caracteristicas=True)
 
 

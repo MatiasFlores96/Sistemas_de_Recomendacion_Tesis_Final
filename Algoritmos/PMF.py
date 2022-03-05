@@ -57,7 +57,7 @@ PMF = SVD(n_epochs = PMF_params['n_epochs'],
 evaluador.AgregarAlgoritmo(PMF, "PMF")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=False, caracteristicas=True)
+evaluador.Evaluar(rank=True, caracteristicas=True)
 
 #evaluador.SampleTopNRecs(ml)
 

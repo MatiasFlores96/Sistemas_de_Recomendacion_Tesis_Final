@@ -63,7 +63,7 @@ evaluador.AgregarAlgoritmo(SVDtuned, "Funk-SVD")
 #evaluador.AddAlgorithm(SVDUntuned, "Funk-SVD")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=True, caracteristicas=False)
+evaluador.Evaluar(rank=True, caracteristicas=True)
 
 #evaluador.SampleTopNRecs(ml)
 
