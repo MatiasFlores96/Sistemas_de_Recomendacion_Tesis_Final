@@ -1,4 +1,4 @@
-# Tesis_Final
+# Tesis_Sistemas_de_Recomendacion
 
 Autor: Matias Gabriel Flores
 Este repositorio posee los codigos realizados para el desarrollo practico de la Tesis de Grado de Ingeniería en Informatica en la Universidad Nacional de Avellaneda.
@@ -6,14 +6,7 @@ Este repositorio posee los codigos realizados para el desarrollo practico de la 
 Se realizó la implementacion de distintos sistemas de recomendacion.
 Para el desarrollo se utilizó la libreria Surprise de Nicolas Hug.
 Las implementaciones de los sistemas se encuentran en la carpeta "Algoritmos".
-Los modelos implementados son: Memory-Based  => User-Based
-                                                Item-Based
-                               Model-Based   => SVD_Funk
-                                                PMF
-                                                NMF
-                               Content-Based => ContentKNN
-                               Random        => Normal Predictor (Algoritmo aleatorio de la libreria surprise)
-
+Los modelos implementados son: Item-Based & User-Based (Memory-Based), SVD_Funk, PMF & NMF (Model-Based), ContentKNN (Content-Based), Normal Predictor (Random)
 
 Los algoritmos a ejecutar son: KNN_User.py, KNN_Item.py, Random.py, SVD_Funk.py, PMF.py, NMF.py, Content_Based.py
 
