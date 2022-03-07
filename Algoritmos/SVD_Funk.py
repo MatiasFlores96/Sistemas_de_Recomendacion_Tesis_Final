@@ -1,14 +1,15 @@
-from DatasetFinal import DatasetFinal
+from CargadorDataset import CargadorDataset
 from surprise import SVD 
 from surprise.model_selection import GridSearchCV
 from Evaluador import Evaluador
+from Recomendador import Recomendador
 
 import random
 import numpy as np
 
 def CargarDatos():
     #Se carga el dataset para poder enviar al evaluador
-    dataset = DatasetFinal()
+    dataset = CargadorDataset()
     datosEvaluacion = dataset.CargarDataset()
     #Este es para calcular la innovacion
     rankings = dataset.ObtenerRankingPopularidad()
@@ -42,29 +43,28 @@ SVD_gs = GridSearchCV(SVD, SVD_param_grid, measures=['rmse', 'mae'], cv=5)
 #Entrenamiento de Modelo SVD
 print("Modelo Funk-SVD")
 SVD_gs.fit(datosEvaluacion)
-print("Mejor valor de RMSE en Entrenamiento: ", SVD_gs.best_score['rmse'])
+print("Mejor valor de CalcularRMSE en Entrenamiento: ", SVD_gs.best_score['rmse'])
 print("Mejores hiperparametros utilizados: ", SVD_gs.best_params['rmse'])
-
-# Construccion de Evaluador para evaluar cada Algoritmo
-evaluador = Evaluador(datosEvaluacion, rankings)
 
 #Matrix Factorization Funk-SVD
 SVD_params = SVD_gs.best_params['rmse']
-SVDtuned = SVD(n_epochs=SVD_params['n_epochs'],
+SVD_best= SVD(n_epochs=SVD_params['n_epochs'],
                lr_all=SVD_params['lr_all'],
                n_factors=SVD_params['n_factors'],
                reg_all=SVD_params['reg_all']
                )
 
-evaluador.AgregarAlgoritmo(SVDtuned, "Funk-SVD")
-
-#Matrix Factorization Funk-SVD sin entrenamiento
-#SVDUntuned = SVD()
-#evaluador.AddAlgorithm(SVDUntuned, "Funk-SVD")
+# Construccion de Evaluador para evaluar cada Algoritmo
+evaluador = Evaluador(datosEvaluacion, rankings)
+evaluador.AgregarAlgoritmo(SVD_best, "Funk-SVD")
 
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=True, caracteristicas=True)
+evaluador.Evaluar(ranking=True, caracteristicas=True)
 
-#evaluador.SampleTopNRecs(ml)
-
+rankingsRec = []
+#Construccion de Recomendador para realizar recomendaciones a un usuario
+recomendador = Recomendador(datosEvaluacion, rankings)
+recomendador.AgregarAlgoritmo(SVD_best, "SVD_Funk")
+#Llamada a la funcion Recomendar. Se le pasa el dataset, Id del usuario y tamaño de recomendaciones
+recomendador.Recomendar(dataset, 500, 10)
 

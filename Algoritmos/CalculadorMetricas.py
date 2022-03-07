@@ -4,21 +4,21 @@ from surprise import accuracy
 from collections import defaultdict
 
 
-class MetricasEvaluacion:
+class CalculadorMetricas:
 
-    def MAE(predicciones):
+    def CalcularMAE(predicciones):
         return accuracy.mae(predicciones, verbose=False)
 
-    def RMSE(predicciones):
+    def CalcularRMSE(predicciones):
         return accuracy.rmse(predicciones, verbose=False)
 
-    def MSE(predicciones):
+    def CalcularMSE(predicciones):
         return accuracy.mse(predicciones, verbose=False)
 
-    def FCP(predicciones):
+    def CalcularFCP(predicciones):
         return accuracy.fcp(predicciones, verbose=False)
     
-    def Ranking(predicciones, k, limite):
+    def CalcularRanking(predicciones, k, limite):
         # First map the predictions to each user.
         user_est_true = defaultdict(list)
         for uid, _, true_r, est, _ in predicciones:
@@ -49,8 +49,8 @@ class MetricasEvaluacion:
         
         return precisions, recalls
     
-    def ResultadosRanking(predicciones, k, limite):
-        precisions, recalls = MetricasEvaluacion.Ranking(predicciones, k, limite)
+    def ObtenerResultadosRanking(predicciones, k, limite):
+        precisions, recalls = CalculadorMetricas.CalcularRanking(predicciones, k, limite)
         
         promedioPrecision = sum(prec for prec in precisions.values()) / len(precisions)
         promedioRecall = sum(rec for rec in recalls.values()) / len(recalls)
@@ -71,7 +71,7 @@ class MetricasEvaluacion:
 
         return topN
 
-    def Cobertura(topNPredichos, numero_total_usuarios, limite_rating):
+    def CalcularCobertura(topNPredichos, numero_total_usuarios, limite_rating):
         aciertos = 0
         for userID in topNPredichos.keys():
             acierto = False
@@ -84,7 +84,7 @@ class MetricasEvaluacion:
 
         return aciertos / numero_total_usuarios
 
-    def Diversidad(topNPredichos, algoritmoSimilitud):
+    def CalcularDiversidad(topNPredichos, algoritmoSimilitud):
         n = 0
         total = 0
         matrizSimilitud = algoritmoSimilitud.compute_similarities()
@@ -102,7 +102,7 @@ class MetricasEvaluacion:
         S = total / n
         return (1-S)
 
-    def Innovacion(topNPredichos, rankings):
+    def CacularInnovacion(topNPredichos, rankings):
         n = 0
         total = 0
         for userID in topNPredichos.keys():

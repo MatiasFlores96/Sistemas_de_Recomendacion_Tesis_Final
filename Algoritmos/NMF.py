@@ -1,14 +1,14 @@
-from DatasetFinal import DatasetFinal
+from CargadorDataset import CargadorDataset
 from surprise import NMF 
 from surprise.model_selection import GridSearchCV
 from Evaluador import Evaluador
-
+from Recomendador import Recomendador
 import random
 import numpy as np
 
 def CargarDatos():
     #Se carga el dataset para poder enviar al evaluador
-    dataset = DatasetFinal()
+    dataset = CargadorDataset()
     datosEvaluacion = dataset.CargarDataset()
     #Este es para calcular la innovacion
     rankings = dataset.ObtenerRankingPopularidad()
@@ -42,22 +42,25 @@ NMF_gs = GridSearchCV(NMF, NMF_param_grid, measures=['rmse', 'mae'], cv=5)
 #Entrenamiento de Modelo NMF
 print("Modelo NMF")
 NMF_gs.fit(datosEvaluacion)
-print("Mejor valor de RMSE en Entrenamiento: ", NMF_gs.best_score['rmse'])
+print("Mejor valor de CalcularRMSE en Entrenamiento: ", NMF_gs.best_score['rmse'])
 print("Mejores hiperparametros utilizados: ", NMF_gs.best_params['rmse'])
-
-#Construccion de Evaluador para evaluar cada Algoritmo
-evaluador = Evaluador(datosEvaluacion, rankings)
 
 #Matrix Factorization NMF
 NMF_params = NMF_gs.best_params['rmse']
-NMFtuned = NMF(n_epochs=NMF_params['n_epochs'],
+NMF_best = NMF(n_epochs=NMF_params['n_epochs'],
                lr_bu=NMF_params['lr_bu'],
                n_factors=NMF_params['n_factors'],
                reg_pu=NMF_params['reg_pu'])
 
-evaluador.AgregarAlgoritmo(NMFtuned, "NMF")
-
+#Construccion de Evaluador para evaluar cada Algoritmo
+evaluador = Evaluador(datosEvaluacion, rankings)
+evaluador.AgregarAlgoritmo(NMF_best, "NMF")
 #Evaluacion de los Sistemas de Recomendacion realizados
-evaluador.Evaluar(rank=True, caracteristicas=True)
+evaluador.Evaluar(ranking=True, caracteristicas=True)
 
-
+rankingsRec = []
+#Construccion de Recomendador para realizar recomendaciones a un usuario
+recomendador = Recomendador(datosEvaluacion, rankings)
+recomendador.AgregarAlgoritmo(NMF_best, "NMF")
+#Llamada a la funcion Recomendar. Se le pasa el dataset, Id del usuario y tamaño de recomendaciones
+recomendador.Recomendar(dataset, 500, 10)

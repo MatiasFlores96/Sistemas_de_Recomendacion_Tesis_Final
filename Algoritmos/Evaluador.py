@@ -1,5 +1,5 @@
-from EvaluacionDatos import EvaluacionDatos
-from EvaluacionAlgoritmo import EvaluacionAlgoritmo
+from GeneradorConjuntos import GeneradorConjuntos
+from AnalizadorAlgoritmo import AnalizadorAlgoritmo
 
 
 class Evaluador:
@@ -9,7 +9,7 @@ class Evaluador:
     #Se inicializan los datos que se van a utilizar mas adelante
     #datos trae las inicializaciones hecha en la clase EvaluacionDatos importada
     def __init__(self, dataset, rankings):
-        datos = EvaluacionDatos(dataset, rankings)
+        datos = GeneradorConjuntos(dataset, rankings)
         self.dataset = datos
 
     #Esta funcion inicializa los algoritmos en base de EvaliacionAlgoritmo
@@ -17,19 +17,19 @@ class Evaluador:
     #Como consumen mucho procesamiento cada uno, se decidio hacerlo individualmente
     #Existe la posibilidad de agregar distintos algoritmos de cualquier manera
     def AgregarAlgoritmo(self, algoritmo, nombre):
-        algo = EvaluacionAlgoritmo(algoritmo, nombre)
+        algo = AnalizadorAlgoritmo(algoritmo, nombre)
         self.algoritmos.append(algo)
 
     #Esta funcion se encarga de evaluar cada uno de los algoritmos que se pasen
-    def Evaluar(self, rank, caracteristicas):
-        # rank y caracteristicas son booleanos que se utilizan para determinar que metricas utilizar
+    def Evaluar(self, ranking, caracteristicas):
+        # ranking y caracteristicas son booleanos que se utilizan para determinar que metricas utilizar
         # Las metricas de exactitud siempre se realizan
         resultados = {}
         # Se fija en cada algoritmo que le pasan, y llama a la funcion evaluar de la clase EvaluacionAlgoritmo
         for algoritmo in self.algoritmos:
             print("Evaluando ", algoritmo.ObtenerNombre(), "...")
             #Guarda los resultados obtenidos en el array para mostrar por pantalla posteriormente
-            resultados[algoritmo.ObtenerNombre()] = algoritmo.Evaluar(self.dataset, rank, caracteristicas)
+            resultados[algoritmo.ObtenerNombre()] = algoritmo.Evaluar(self.dataset, ranking, caracteristicas)
 
         print("\nExactitud:")
         print("{:<10} {:<10} {:<10} {:<10} {:<10} ".format("Algoritmo",
@@ -46,7 +46,7 @@ class Evaluador:
                                                                           metricas["MSE"],
                                                                           metricas["FCP"]
                                                                           ))
-        if rank:
+        if ranking:
             print("\nPrecision:")
             print("{:<12} {:<12} {:<12} {:<12} {:<12} "
                   "{:<12} {:<12} {:<12} {:<12} {:<12}".format("Precision@1",
@@ -145,7 +145,7 @@ class Evaluador:
         print("MAE: Mean Absolute Error. Cuanto menor sea el valor mayor es la exactitud.")
         print("MSE: Mean Squared Error. Cuanto menor sea el valor mayor es la exactitud.")
         print("FCP: Fraction of Concordant Pairs. Cuanto mayor sea el valor mayor es la exactitud.")
-        if rank:
+        if ranking:
             print("Precision: Proporcion de items recomendados que son relevantes")
             print("Recall: Proporcion de items relevantes que son recomendados")
             print("F1: Media harmonica entre Precision y Recall")
@@ -153,6 +153,6 @@ class Evaluador:
             print("Cobertura: Radio de usuarios para los cuales las "
                   "recomendaciones arriba de un limite existen. Mayor valor es mejor.")
             print("Diversidad: 1-S, donde S es el promedio de similitud entre cada par "
-                  "de recomendaciones para un usuario. Mayor significa mas divierso")
+                  "de recomendaciones para un usuario. Mayor significa mas diverso")
             print("Innovacion: Rango promedio de popularidad de los items recomendados. "
                   "Cuanto mayor sea mas innovador")

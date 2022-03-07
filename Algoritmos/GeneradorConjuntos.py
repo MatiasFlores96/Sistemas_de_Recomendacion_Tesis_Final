@@ -2,7 +2,7 @@ from surprise.model_selection import train_test_split
 from surprise import KNNBaseline
 
 
-class EvaluacionDatos:
+class GeneradorConjuntos:
     def __init__(self, datos, rankingsPopularidad):
         # Creacion de un split entre set de entrenamiento y de prueba de 75/25
         self.trainSet, self.testSet = train_test_split(datos, test_size=.25, random_state=1)

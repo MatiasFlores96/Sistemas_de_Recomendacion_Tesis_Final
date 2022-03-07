@@ -1,11 +1,11 @@
 from surprise import AlgoBase
 from surprise import PredictionImpossible
-from DatasetFinal import DatasetFinal
+from CargadorDataset import CargadorDataset
 import math
 import numpy as np
 import heapq
 
-class AlgoritmoContentKNN(AlgoBase):
+class AlgoritmoContent(AlgoBase):
 
     def __init__(self, k):
         AlgoBase.__init__(self)
@@ -15,7 +15,7 @@ class AlgoritmoContentKNN(AlgoBase):
         AlgoBase.fit(self, trainset)
         # Se realiza una matriz de similitud basada en los atributos de los items
         # Se cargan vectores de generos y años para cada pelicula
-        dataset = DatasetFinal()
+        dataset = CargadorDataset()
         generos = dataset.ObtenerGeneros()
         years = dataset.ObtenerYears()
         

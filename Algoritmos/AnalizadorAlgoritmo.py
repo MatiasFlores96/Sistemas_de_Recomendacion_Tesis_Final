@@ -1,16 +1,16 @@
-from MetricasEvaluacion import MetricasEvaluacion
+from CalculadorMetricas import CalculadorMetricas
 
 
-class EvaluacionAlgoritmo:
+class AnalizadorAlgoritmo:
     def __init__(self, algoritmo, nombre):
         self.algoritmo = algoritmo
         self.nombre = nombre
 
-    def Evaluar(self, datosEvaluacion, rank, caracteristicas):
+    def Evaluar(self, datosEvaluacion, ranking, caracteristicas):
         #Creamos un diccionario de metricas para guardar todos los resultados obtenidos
-        #Los resultados son RMSE, MAE, MSE, FCP
+        #Los resultados son CalcularRMSE, CalcularMAE, CalcularMSE, CalcularFCP
         #Si rank es True: Precision, Recall y F1 para un determinado tamaño n
-        #Si caracteristicas es True: Cobertura, Diversidad e Innovacion
+        #Si caracteristicas es True: CalcularCobertura, CalcularDiversidad e CacularInnovacion
         metricas = {}
         # Evaluacion de Exactitud
         print("Evaluando Exactitud...")
@@ -18,13 +18,13 @@ class EvaluacionAlgoritmo:
         #El algoritmo ya posee los mejores hiperparametros
         self.algoritmo.fit(datosEvaluacion.ObtenerTrainSet())
         predicciones = self.algoritmo.test(datosEvaluacion.ObtenerTestSet())
-        print("Analizando RMSE, MAE, MSE & FCP...")
-        metricas["RMSE"] = MetricasEvaluacion.RMSE(predicciones)
-        metricas["MAE"] = MetricasEvaluacion.MAE(predicciones)
-        metricas["MSE"] = MetricasEvaluacion.MSE(predicciones)
-        metricas["FCP"] = MetricasEvaluacion.FCP(predicciones)
+        print("Analizando CalcularRMSE, CalcularMAE, CalcularMSE & CalcularFCP...")
+        metricas["RMSE"] = CalculadorMetricas.CalcularRMSE(predicciones)
+        metricas["MAE"] = CalculadorMetricas.CalcularMAE(predicciones)
+        metricas["MSE"] = CalculadorMetricas.CalcularMSE(predicciones)
+        metricas["FCP"] = CalculadorMetricas.CalcularFCP(predicciones)
 
-        if rank:
+        if ranking:
             pre, rec, F1 = "Pre-", "Rec-", "F1-"
             #El tope es para que termine el bucle
             #Cuanto mas grande sea el valor, mas mediciones hara de estas metricas
@@ -35,7 +35,7 @@ class EvaluacionAlgoritmo:
 
             #El siguiente bucle es para evaluar las metricas para cada tamaño de la prediccion
             for k in range(1, tope):
-                precision, recall, F1_Score = MetricasEvaluacion.ResultadosRanking(predicciones, k, 3.5)
+                precision, recall, F1_Score = CalculadorMetricas.ObtenerResultadosRanking(predicciones, k, 3.5)
                 print("Evaluando Precision, Recall y F1 para una lista de tamaño ", k)
                 metricas[pre + str(k)] = precision
                 metricas[rec + str(k)] = recall
@@ -46,21 +46,21 @@ class EvaluacionAlgoritmo:
             print("Realizando recomendaciones con todo el dataset para analizar caracteristicas...")
             self.algoritmo.fit(datosEvaluacion.ObtenerTrainSetCompleto())
             prediccionesTotal = self.algoritmo.test(datosEvaluacion.ObtenerAntiTestsetCompleto())
-            topNPredichos = MetricasEvaluacion.ObtenerTopN(prediccionesTotal, 10, 4.0)
+            topNPredichos = CalculadorMetricas.ObtenerTopN(prediccionesTotal, 10, 4.0)
 
             print("Analizando Cobertura...")
             # Mide la cobertura con un limite minimo de 4 de calificacion
-            metricas["Cobertura"] = MetricasEvaluacion.Cobertura(topNPredichos,
-                                                                 datosEvaluacion.ObtenerTrainSetCompleto().n_users,
-                                                                 4.0)
+            metricas["Cobertura"] = CalculadorMetricas.CalcularCobertura(topNPredichos,
+                                                                                 datosEvaluacion.ObtenerTrainSetCompleto().n_users,
+                                                                                 4.0)
             print("Analizando Diversidad...")
             # Mide la diversidad de las recomendaciones:
-            metricas["Diversidad"] = MetricasEvaluacion.Diversidad(topNPredichos,
-                                                                   datosEvaluacion.ObtenerSimilitudes())
+            metricas["Diversidad"] = CalculadorMetricas.CalcularDiversidad(topNPredichos,
+                                                                                   datosEvaluacion.ObtenerSimilitudes())
             print("Analizando Innovacion...")
             # Mide la innovacion de las recomendaciones
-            metricas["Innovacion"] = MetricasEvaluacion.Innovacion(topNPredichos,
-                                                                   datosEvaluacion.ObtenerRankingsPopularidad())
+            metricas["Innovacion"] = CalculadorMetricas.CacularInnovacion(topNPredichos,
+                                                                                 datosEvaluacion.ObtenerRankingsPopularidad())
         print("Analisis Completo")
         #Devuelve las metricas para que las muestre Evaluador
         return metricas
